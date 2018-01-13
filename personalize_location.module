@@ -1,0 +1,182 @@
+<?php
+
+/**
+ * @file
+ * Contains functionality for loading user location to context.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function personalize_location_menu() {
+  $items = array();
+  $items['admin/config/content/personalize/location'] = array(
+    'title' => 'Location Contexts',
+    'description' => 'Configure loading user location to contexts.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('personalize_location_admin_form'),
+    'access arguments' => array('administer personalize configuration'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+/**
+ * Returns form for managing loading location to context.
+ */
+function personalize_location_admin_form($form, &$form_state) {
+  $personalize_location = variable_get('personalize_location_contexts', array());
+
+  $form['personalize_location_contexts'] = array(
+    '#title' => t('User Location'),
+    '#type' => 'fieldset',
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#tree' => TRUE,
+  );
+
+  $form['personalize_location_contexts']['smart_ip'] = array(
+    '#title' => t('Smart IP'),
+    '#type' => 'fieldset',
+  );
+
+  $smart_ip_country = !(empty($personalize_location['smart_ip']['country'])) ? $personalize_location['smart_ip']['country'] : array();
+  $form['personalize_location_contexts']['smart_ip']['country'] = array(
+    '#type' => 'container',
+  );
+
+  $smart_ip_country_visibility = (isset($smart_ip_country['visibility']) && $smart_ip_country['visibility'] == 1) ? 1 : 0;
+  $form['personalize_location_contexts']['smart_ip']['country']['visibility'] = array(
+    '#title' => t('Show specific countries'),
+    '#type' => 'radios',
+    '#options' => array(
+      0 => t('All countries except those listed.'),
+      1 => t('Only the listed countries.'),
+    ),
+    '#default_value' => $smart_ip_country_visibility,
+  );
+
+  include_once DRUPAL_ROOT . '/includes/locale.inc';
+  $countries = country_get_list();
+
+  $smart_ip_country_list = (!empty($smart_ip_country['list'])) ? $smart_ip_country['list'] : array();
+  $form['personalize_location_contexts']['smart_ip']['country']['list'] = array(
+    '#title' => t('Countries'),
+    '#type' => 'checkboxes',
+    '#description' => t('Specify countries for processing. <strong>Note:</strong> rest of countries will be marked as <i>"Other"</i>.'),
+    '#options' => $countries,
+    '#default_value' => !empty($smart_ip_country_list) ? $smart_ip_country_list : array(),
+    '#field_prefix' => '<div style="height: 250px; overflow-y: scroll">',
+    '#field_suffix' => '</div>',
+  );
+
+  $form['#submit'][] = 'personalize_location_admin_form_submit';
+
+  return system_settings_form($form);
+}
+
+/**
+ * Submission callback for processing
+ */
+function personalize_location_admin_form_submit($form, &$form_state) {
+  // @TODO: add here custom logic.
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function personalize_location_page_build(&$page) {
+  $location = personalize_location_load_location();
+  if (empty($location)) {
+    return;
+  }
+
+  $personalize_location_context = array();
+
+  if (!empty($location['country_code'])) {
+    $personalize_location_context['country'] = $location['country_code'];
+  }
+
+  if (!empty($location['city'])) {
+    $personalize_location_context['city'] = $location['city'];
+  }
+
+  $page['page_top']['personalize_location'] = array(
+    '#attached' => array(
+      'js' => array(
+        drupal_get_path('module', 'personalize_location') . '/js/personalize_location.js' => array(),
+        array(
+          'data' => array('personalize_location_context' => $personalize_location_context),
+          'type' => 'setting',
+        ),
+      ),
+    )
+  );
+}
+
+/**
+ * Implements hook_personalize_visitor_contexts().
+ */
+function personalize_location_personalize_visitor_context() {
+  $info = array();
+  $path = drupal_get_path('module', 'personalize_location') . '/plugins';
+  $info['location_context'] = array(
+    'path' => $path . '/visitor_context',
+    'handler' => array(
+      'file' => 'LocationContext.inc',
+      'class' => 'LocationContext',
+    ),
+  );
+
+  return $info;
+}
+
+/**
+ * Return locations available for context.
+ */
+function _personalize_location_location_contexts_options() {
+  $personalize_location = variable_get('personalize_location_contexts', array());
+
+  if (!empty($personalize_location['smart_ip']['country'])) {
+    $location_context_settings = $personalize_location['smart_ip']['country'];
+  }
+  else {
+    return array();
+  }
+
+  include_once DRUPAL_ROOT . '/includes/locale.inc';
+  $countries = country_get_list();
+
+  $location_list = array_filter($location_context_settings['list']);
+  if ($location_context_settings['visibility'] === '0') {
+    $location_contexts_options = array_diff_key($countries, $location_list);
+  }
+  else {
+    $location_contexts_options = array_intersect_key($countries, $location_list);
+  }
+
+  return $location_contexts_options;
+}
+
+/**
+ * Get location from Smart IP.
+ */
+function personalize_location_load_location() {
+  $location = array();
+  $smart_ip_session = smart_ip_session_get('smart_ip');
+  // Smart IP user $_SESSION
+  if (!is_null($smart_ip_session)) {
+    $location = $smart_ip_session['location'];
+  }
+  // Smart IP user object data
+  else {
+    global $user;
+    if (isset($user->data['geoip_location'])) {
+      $smart_ip_session['location'] = $user->data['geoip_location'];
+      smart_ip_session_set('smart_ip', $smart_ip_session);
+      $location = $smart_ip_session['location'];
+    }
+  }
+
+  return $location;
+}

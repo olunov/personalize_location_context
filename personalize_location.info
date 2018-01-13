@@ -1,0 +1,6 @@
+name = Personalize Location
+description = Provides a visitor context plugin for targeting based on user location.
+dependencies[] = smart_ip
+dependencies[] = personalize
+package = Personalization
+core = 7.x
