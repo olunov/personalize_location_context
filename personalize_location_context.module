@@ -82,8 +82,8 @@ function personalize_location_context_admin_form_submit($form, &$form_state) {
   $personalize_location_context = array();
 
   // Clean up empty values of checkboxes.
-  if (!empty($form_state['values']['personalize_location_context'])) {
-    $personalize_location_context = $form_state['values']['personalize_location_context'];
+  if (!empty($form_state['values']['personalize_location_context']['smart_ip'])) {
+    $personalize_location_context = $form_state['values']['personalize_location_context']['smart_ip'];
     foreach (array('country') as $param) {
       $options_values = array_filter($personalize_location_context[$param]['list']);
       $personalize_location_context[$param]['list'] = $options_values;
