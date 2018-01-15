@@ -110,7 +110,7 @@ function personalize_location_context_page_build(&$page) {
           'type' => 'setting',
         ),
       ),
-    )
+    ),
   );
 }
 
