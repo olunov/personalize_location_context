@@ -115,7 +115,16 @@ function personalize_location_context_page_build(&$page) {
 }
 
 /**
- * Implements hook_personalize_visitor_contexts().
+ * Implements hook_ctools_plugin_api().
+ */
+function personalize_location_context_ctools_plugin_api($owner, $api) {
+  if ($owner == 'personalize' && $api == 'personalize') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Implements hook_personalize_visitor_context().
  */
 function personalize_location_context_personalize_visitor_context() {
   $info = array();
@@ -141,7 +150,10 @@ function _personalize_location_context_location_contexts_options() {
     $location_context_settings = $personalize_location_context['smart_ip']['country'];
   }
   else {
-    return array();
+    $location_context_settings = array(
+      'list' => array(),
+      'visibility' => '0',
+    );
   }
 
   include_once DRUPAL_ROOT . '/includes/locale.inc';
@@ -164,7 +176,7 @@ function _personalize_location_context_location_contexts_options() {
 function personalize_location_context_load_location() {
   $location = array();
   $smart_ip_session = smart_ip_session_get('smart_ip');
-  // Smart IP user $_SESSION
+  // Smart IP user $_SESSION.
   if (!is_null($smart_ip_session)) {
     $location = $smart_ip_session['location'];
   }

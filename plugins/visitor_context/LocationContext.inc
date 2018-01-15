@@ -45,7 +45,7 @@ class LocationContext extends PersonalizeContextBase {
     foreach ($options as $name => $info) {
       switch ($name) {
         case 'country':
-          $browser_contexts_options = _personalize_location_location_contexts_options();
+          $browser_contexts_options = _personalize_location_context_location_contexts_options();
           $possible_values[$name] = array(
             'friendly name' => t('Location: Country'),
             'value type' => 'predefined',
