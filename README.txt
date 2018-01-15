@@ -1,12 +1,12 @@
 INTRODUCTION
 ------------
 This module provides personalize contexts based on location data loaded
-Smart IP module. There are two available contexts for now:
+Smart IP module. The available location properties are:
  * Country
  * City
-Based on options for each of those contexts it is possible to setup
-showing personalized content. Learn more about personalize README.txt
-and project page of personalize module.
+Based on the options for each of these contexts it is possible to use
+them to define when personalized content will be shown. Learn more about
+personalize in README.txt and at project page of personalize module.
 
 REQUIREMENTS
 ------------
