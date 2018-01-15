@@ -8,13 +8,13 @@
 /**
  * Implements hook_menu().
  */
-function personalize_location_menu() {
+function personalize_location_context_menu() {
   $items = array();
   $items['admin/config/content/personalize/location'] = array(
     'title' => 'Location Contexts',
     'description' => 'Configure loading user location to contexts.',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('personalize_location_admin_form'),
+    'page arguments' => array('personalize_location_context_admin_form'),
     'access arguments' => array('administer personalize configuration'),
     'type' => MENU_LOCAL_TASK,
   );
@@ -24,10 +24,10 @@ function personalize_location_menu() {
 /**
  * Returns form for managing loading location to context.
  */
-function personalize_location_admin_form($form, &$form_state) {
-  $personalize_location = variable_get('personalize_location_contexts', array());
+function personalize_location_context_admin_form($form, &$form_state) {
+  $personalize_location_context = variable_get('personalize_location_context', array());
 
-  $form['personalize_location_contexts'] = array(
+  $form['personalize_location_context'] = array(
     '#title' => t('User Location'),
     '#type' => 'fieldset',
     '#collapsible' => FALSE,
@@ -35,18 +35,18 @@ function personalize_location_admin_form($form, &$form_state) {
     '#tree' => TRUE,
   );
 
-  $form['personalize_location_contexts']['smart_ip'] = array(
+  $form['personalize_location_context']['smart_ip'] = array(
     '#title' => t('Smart IP'),
     '#type' => 'fieldset',
   );
 
-  $smart_ip_country = !(empty($personalize_location['smart_ip']['country'])) ? $personalize_location['smart_ip']['country'] : array();
-  $form['personalize_location_contexts']['smart_ip']['country'] = array(
+  $smart_ip_country = !(empty($personalize_location_context['smart_ip']['country'])) ? $personalize_location_context['smart_ip']['country'] : array();
+  $form['personalize_location_context']['smart_ip']['country'] = array(
     '#type' => 'container',
   );
 
   $smart_ip_country_visibility = (isset($smart_ip_country['visibility']) && $smart_ip_country['visibility'] == 1) ? 1 : 0;
-  $form['personalize_location_contexts']['smart_ip']['country']['visibility'] = array(
+  $form['personalize_location_context']['smart_ip']['country']['visibility'] = array(
     '#title' => t('Show specific countries'),
     '#type' => 'radios',
     '#options' => array(
@@ -60,7 +60,7 @@ function personalize_location_admin_form($form, &$form_state) {
   $countries = country_get_list();
 
   $smart_ip_country_list = (!empty($smart_ip_country['list'])) ? $smart_ip_country['list'] : array();
-  $form['personalize_location_contexts']['smart_ip']['country']['list'] = array(
+  $form['personalize_location_context']['smart_ip']['country']['list'] = array(
     '#title' => t('Countries'),
     '#type' => 'checkboxes',
     '#description' => t('Specify countries for processing. <strong>Note:</strong> rest of countries will be marked as <i>"Other"</i>.'),
@@ -70,7 +70,7 @@ function personalize_location_admin_form($form, &$form_state) {
     '#field_suffix' => '</div>',
   );
 
-  $form['#submit'][] = 'personalize_location_admin_form_submit';
+  $form['#submit'][] = 'personalize_location_context_admin_form_submit';
 
   return system_settings_form($form);
 }
@@ -78,15 +78,15 @@ function personalize_location_admin_form($form, &$form_state) {
 /**
  * Submission callback for processing
  */
-function personalize_location_admin_form_submit($form, &$form_state) {
+function personalize_location_context_admin_form_submit($form, &$form_state) {
   // @TODO: add here custom logic.
 }
 
 /**
  * Implements hook_page_build().
  */
-function personalize_location_page_build(&$page) {
-  $location = personalize_location_load_location();
+function personalize_location_context_page_build(&$page) {
+  $location = personalize_location_context_load_location();
   if (empty($location)) {
     return;
   }
@@ -101,10 +101,10 @@ function personalize_location_page_build(&$page) {
     $personalize_location_context['city'] = $location['city'];
   }
 
-  $page['page_top']['personalize_location'] = array(
+  $page['page_top']['personalize_location_context'] = array(
     '#attached' => array(
       'js' => array(
-        drupal_get_path('module', 'personalize_location') . '/js/personalize_location.js' => array(),
+        drupal_get_path('module', 'personalize_location_context') . '/js/personalize_location_context.js' => array(),
         array(
           'data' => array('personalize_location_context' => $personalize_location_context),
           'type' => 'setting',
@@ -117,9 +117,9 @@ function personalize_location_page_build(&$page) {
 /**
  * Implements hook_personalize_visitor_contexts().
  */
-function personalize_location_personalize_visitor_context() {
+function personalize_location_context_personalize_visitor_context() {
   $info = array();
-  $path = drupal_get_path('module', 'personalize_location') . '/plugins';
+  $path = drupal_get_path('module', 'personalize_location_context') . '/plugins';
   $info['location_context'] = array(
     'path' => $path . '/visitor_context',
     'handler' => array(
@@ -134,11 +134,11 @@ function personalize_location_personalize_visitor_context() {
 /**
  * Return locations available for context.
  */
-function _personalize_location_location_contexts_options() {
-  $personalize_location = variable_get('personalize_location_contexts', array());
+function _personalize_location_context_location_contexts_options() {
+  $personalize_location_context = variable_get('personalize_location_context', array());
 
-  if (!empty($personalize_location['smart_ip']['country'])) {
-    $location_context_settings = $personalize_location['smart_ip']['country'];
+  if (!empty($personalize_location_context['smart_ip']['country'])) {
+    $location_context_settings = $personalize_location_context['smart_ip']['country'];
   }
   else {
     return array();
@@ -161,7 +161,7 @@ function _personalize_location_location_contexts_options() {
 /**
  * Get location from Smart IP.
  */
-function personalize_location_load_location() {
+function personalize_location_context_load_location() {
   $location = array();
   $smart_ip_session = smart_ip_session_get('smart_ip');
   // Smart IP user $_SESSION
