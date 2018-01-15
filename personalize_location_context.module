@@ -76,7 +76,7 @@ function personalize_location_context_admin_form($form, &$form_state) {
 }
 
 /**
- * Submission callback for processing
+ * Submission callback for processing.
  */
 function personalize_location_context_admin_form_submit($form, &$form_state) {
   // @TODO: add here custom logic.
@@ -168,7 +168,7 @@ function personalize_location_context_load_location() {
   if (!is_null($smart_ip_session)) {
     $location = $smart_ip_session['location'];
   }
-  // Smart IP user object data
+  // Smart IP user object data.
   else {
     global $user;
     if (isset($user->data['geoip_location'])) {
