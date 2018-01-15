@@ -160,21 +160,23 @@ function _personalize_location_context_location_contexts_options() {
     $location_context_settings = $personalize_location_context['smart_ip']['country'];
   }
   else {
-    $location_context_settings = array(
-      'list' => array(),
-      'visibility' => '0',
-    );
+    $location_context_settings = array();
   }
 
   include_once DRUPAL_ROOT . '/includes/locale.inc';
   $countries = country_get_list();
 
-  $location_list = array_filter($location_context_settings['list']);
-  if ($location_context_settings['visibility'] === '0') {
-    $location_contexts_options = array_diff_key($countries, $location_list);
+  if (!empty($location_context_settings)) {
+    $location_list = array_filter($location_context_settings['list']);
+    if ($location_context_settings['visibility'] === '0') {
+      $location_contexts_options = array_diff_key($countries, $location_list);
+    }
+    else {
+      $location_contexts_options = array_intersect_key($countries, $location_list);
+    }
   }
   else {
-    $location_contexts_options = array_intersect_key($countries, $location_list);
+    $location_contexts_options = $countries;
   }
 
   return $location_contexts_options;
