@@ -61,8 +61,8 @@ class LocationContext extends PersonalizeContextBase {
 
         // City and Region options are done in simplest way for now.
         // @TODO: Make it possible to have dependency of selected region or
-        // city on city. Probably should be done thru
-        // EXPLICIT_TARGETING_MULTIPLE_BOTH,
+        // city on country. Probably should be done thru
+        // flag EXPLICIT_TARGETING_MULTIPLE_BOTH,
         // see for details PersonalizeExplicitTargetingInterface.
         case 'region':
           $possible_values[$name] = array(
