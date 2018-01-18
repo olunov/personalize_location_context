@@ -107,6 +107,10 @@ function personalize_location_context_page_build(&$page) {
     $personalize_location_context['country'] = $location['country_code'];
   }
 
+  if (!empty($location['region'])) {
+    $personalize_location_context['region'] = $location['region'];
+  }
+
   if (!empty($location['city'])) {
     $personalize_location_context['city'] = $location['city'];
   }

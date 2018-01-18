@@ -25,6 +25,12 @@ class LocationContext extends PersonalizeContextBase {
       'cache_type' => 'session',
     );
 
+    $options['region'] = array(
+      'name' => t('State/Region'),
+      'group' => 'Location',
+      'cache_type' => 'session',
+    );
+
     $options['city'] = array(
       'name' => t('City'),
       'group' => 'Location',
@@ -50,6 +56,18 @@ class LocationContext extends PersonalizeContextBase {
             'friendly name' => t('Location: Country'),
             'value type' => 'predefined',
             'values' => $browser_contexts_options,
+          );
+          break;
+
+        // City and Region options are done in simplest way for now.
+        // @TODO: Make it possible to have dependency of selected region or
+        // city on city. Probably should be done thru
+        // EXPLICIT_TARGETING_MULTIPLE_BOTH,
+        // see for details PersonalizeExplicitTargetingInterface.
+        case 'region':
+          $possible_values[$name] = array(
+            'friendly name' => t('Location: State/Region'),
+            'value type' => 'string',
           );
           break;
 
