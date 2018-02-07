@@ -4,6 +4,7 @@ This module provides personalize contexts based on location data loaded
 Smart IP module. The available location properties are:
  * Country
  * City
+
 Based on the options for each of these contexts it is possible to use
 them to define when personalized content will be shown. Learn more about
 personalize in README.txt and at project page of personalize module.
